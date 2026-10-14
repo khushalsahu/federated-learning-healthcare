@@ -41,41 +41,35 @@ fl_project/
 └── README.md
 ```
 
-## Setup
+## Setup and one-command launch
+
+From the project root in Linux, WSL, or another Bash-compatible environment, run:
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-pip install -r requirements.txt
+./run_all.sh
 ```
 
-## Running the project
+The launcher will:
+1. Create the local `venv/` virtual environment if it does not exist.
+2. Install or verify the packages in `requirements.txt`.
+3. Prepare the simulated hospital partitions and held-out test set.
+4. Run federated training with and without the configured Gaussian noise, save both metric sets, and run the centralised baseline.
+5. Launch the Streamlit dashboard and print its local URL. Press **Ctrl+C** in the terminal to stop it.
 
-**Option A — one command:**
+The first run requires internet access to install Python dependencies. On Ubuntu/WSL, if virtual-environment creation fails because `venv` support is missing, install it with:
+
 ```bash
-bash run_all.sh
+sudo apt update
+sudo apt install python3-venv
 ```
 
-**Option B — step by step:**
+To activate the environment manually for development:
+
 ```bash
-# 1. Generate the simulated hospital data partitions + held-out test set
-python3 data/prepare_data.py
-
-# 2. Run federated training (default: 15 rounds, plain FedAvg)
-python3 src/federated_simulation.py --rounds 15
-
-# 3. Run the centralised baseline for comparison
-python3 src/baseline_centralized.py --epochs 15
-
-# 4. (Optional) Run federated training with differential privacy noise
-python3 src/federated_simulation.py --rounds 15 --dp-sigma 0.05
-cp results/fl_metrics.csv results/fl_metrics_with_dp.csv
-python3 src/federated_simulation.py --rounds 15   # restore the no-DP run as default
-cp results/fl_metrics.csv results/fl_metrics_no_dp.csv
-
-# 5. Launch the dashboard
-streamlit run dashboard/dashboard.py
+source venv/bin/activate
 ```
+
+You can also run individual stages using the Python scripts directly; execute them from the project root so the expected `data/` and `results/` paths resolve correctly.
 
 ## Dataset
 
